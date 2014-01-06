@@ -60,7 +60,6 @@ def sortRowsAlgorithm(presents):
   print "number of packedPresents = ", len(packedPresents)
 
   print "Flipping the presents"
-  print "present[0] is ", packedPresents[0]
   C['mz'] = mz+1
   flipSortedPresents(packedPresents, C)
   print "Presents flipped"

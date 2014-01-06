@@ -1,28 +1,25 @@
-import Row
-
 class Layer:
   def __init__(self, z, SLEIGH_LEN):
     self.rows = []
-    self.packagesUsed = []
+    self.presentsUsed = [] # of form [[id px py pz] x y z]
     self.z = z
     self.SLEIGH_LEN = SLEIGH_LEN  
 
   def makeLayer(self, presents, i): #i is index of current present
-    rows = []
     x = y = my = mz = 1
     row_num = 0
+    i_init = i
     while i < len(presents) and y < self.SLEIGH_LEN:
       [new_row, my, i, mz]= self.makeRow(presents, i, y, mz)
-      row = Row.Row(new_row, x, y, self.z)
-      rows.append(row)
+      row_num += 1
       y = my+1
+      self.presentsUsed += new_row
+        
 
-    #print "****************** Layer has ", len(rows), " rows! ************************" 
-    self.squishRows(rows) #TODO: sort as triangles and try to "push" them together
-    self.rows = rows
+    #print "******* Layer has ", len(rows), " rows! *********" 
     self.mz = mz
     self.i = i
-    return [rows, mz, i]
+    return [self.rows, mz, i]
 
   def makeRow(self, presents, i, y, mz):
     x=1
@@ -35,10 +32,7 @@ class Layer:
       present = presents[i]
       #i = i+1
       id, px, py, pz = present
-      if id == 20:
-        print "at present 20"
-        print "x = {0}, y = {1}, z = {2}".format(x, y, self.z)
-        print "px = {1}, py = {2}, pz = {3}".format(*present)
+      
       if y+py-1 > self.SLEIGH_LEN:
         #TODO: we could just try to flip the shape to get a small gain
         return [row, my, i, mz]
@@ -48,23 +42,34 @@ class Layer:
       
       i = i+1
       mz = max(mz, self.z+pz-1)
-      row.append(present)
+      row.append([present, x, y, self.z])
       xy_coords.append([x+px-1, y+py])
       my = max(my, y+py-1)
       x = x+px+1
-      #print "len(row) = ", len(row), ", mx = ", x, ", my = ", my, ", mz = ", mz, ", i = ", i
 
     return [row, my, i, mz]
 
   def getCoords(self):
     #converts the presents in each row to their coords
+    #return self.coords
     coords = []
-    for row in self.rows:
-      coords += row.getCoords()
+    for placedPresent in self.presentsUsed:
+      coords.append(self.getPresentCoords(placedPresent))
     return coords
 
-  def squishRows(self, rows):
-    # Assuming every present is where its supposed to be, we are going to
-    # Make complimentary triangles and _push_ the rows together
-    pass
+  def getPresentCoords(self, placedPresent):
+    present, x1, y1, z1 = placedPresent
+    id, px, py, pz = present
+    x2, y2, z2 = x1+px-1, y1+py-1, z1+pz-1
+    return [id] + self.vertex_list(x1, x2, y1, y2, z1, z2)
 
+  def vertex_list(self, x1, x2, y1, y2, z1, z2):
+    list_vertices = [x1, y1, z1]
+    list_vertices += [x1, y2, z1]
+    list_vertices += [x2, y1, z1]
+    list_vertices += [x2, y2, z1]
+    list_vertices += [x1, y1, z2]
+    list_vertices += [x1, y2, z2]
+    list_vertices += [x2, y1, z2]
+    list_vertices += [x2, y2, z2]
+    return list_vertices    
