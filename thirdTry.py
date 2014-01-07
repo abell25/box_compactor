@@ -50,7 +50,7 @@ def sortRowsAlgorithm(presents):
     [mz, i] = layer.makeLayer(presents, i)
     z = mz+1
     layers.append(layer)
-    print "there are now ", len(layers), " layer!, i=", i, ", packed=", len(layer.packedPresents)
+    #print "there are now ", len(layers), " layer!, i=", i, ", packed=", len(layer.packedPresents)
   for layer in layers:
     packedPresents += layer.getCoords()
 

@@ -57,6 +57,21 @@ class Layer:
     while i < len(presents):
       present = presents[i]
       id, px, py, pz = present
+
+      used_closed_shelf = False
+      for shelf in closedShelves:
+        cx, cmx, cy, cmy = shelf
+        if cmx-cx-1 > px and cmy-cy-1 > py:
+          #print "dx: {0}-{1}, dy: {2}-{3}".format(cx, cmx, cy, cmy)
+          used_closed_shelf = True
+          packedPresents.append([present, cx, cy, self.z])
+          shelf[0] = cx+px
+      
+      if used_closed_shelf:
+        lz = max(lz, pz-1)
+        i = i+1
+        continue
+
       if x+px-1 > self.SLEIGH_LEN:
         closedShelves.append([x, self.SLEIGH_LEN, y, my])
         x = mx = 1
