@@ -42,18 +42,15 @@ def sortRowsAlgorithm(presents):
   packedPresents = []
   C = {'x':1,'y':1,'z':1,'mx':1,'my':1,'mz':1}
   
-  #for p in presents:
-  #  placedPresent = naivePackPresent(p, C)
-  #  packedPresents.append([p[0]] + vertex_list(*placedPresent))
   i = 0
   z = mz = 1
   layers = []
   while i < len(presents):
     layer = Layer.Layer(z, SLEIGH_LEN)
-    [rows, mz, i] = layer.makeLayer(presents, i)
+    [mz, i] = layer.makeLayer(presents, i)
     z = mz+1
     layers.append(layer)
-    #print "there are now ", len(layers), " layer!"
+    print "there are now ", len(layers), " layer!, i=", i, ", packed=", len(layer.packedPresents)
   for layer in layers:
     packedPresents += layer.getCoords()
 

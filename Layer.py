@@ -1,25 +1,17 @@
 class Layer:
   def __init__(self, z, SLEIGH_LEN):
-    self.rows = []
-    self.presentsUsed = [] # of form [[id px py pz] x y z]
+    self.packedPresents = [] # of form [[id px py pz] x y z]
     self.z = z
     self.SLEIGH_LEN = SLEIGH_LEN  
 
   def makeLayer(self, presents, i): #i is index of current present
-    x = y = my = mz = 1
-    row_num = 0
-    i_init = i
-    while i < len(presents) and y < self.SLEIGH_LEN:
-      [new_row, my, i, mz]= self.makeRow(presents, i, y, mz)
-      row_num += 1
-      y = my+1
-      self.presentsUsed += new_row
-        
-
-    #print "******* Layer has ", len(rows), " rows! *********" 
-    self.mz = mz
     self.i = i
-    return [self.rows, mz, i]
+    x = y = my = lz = 1
+    [new_i, lz, packedPresents] = self.doPackingAlgorithm(presents, i)
+
+    self.mz = mz = lz + self.z
+    self.packedPresents = packedPresents
+    return [mz, new_i]
 
   def makeRow(self, presents, i, y, mz):
     x=1
@@ -49,12 +41,45 @@ class Layer:
 
     return [row, my, i, mz]
 
+  #present:       [id px py pz]
+  #packedPresent [[id px py pz] x y z]
+  def doPackingAlgorithm(self, presents, i):
+    packedPresents = []
+    [new_i, lz, latestPackedPresents] = self.selfFirstFit(presents, i)
+    if new_i - i > len(packedPresents):
+      packedPresents = latestPackedPresents
+    return [new_i, lz, packedPresents]
+
+  def selfFirstFit(self, presents, i):
+    closedShelves = [] # [x, end_x, y, end_y]
+    packedPresents = []
+    x = y = mx = my = lz = 1
+    while i < len(presents):
+      present = presents[i]
+      id, px, py, pz = present
+      if x+px-1 > self.SLEIGH_LEN:
+        closedShelves.append([x, self.SLEIGH_LEN, y, my])
+        x = mx = 1
+        y = my+1
+      if y+py-1 > self.SLEIGH_LEN:
+        return [i, lz, packedPresents]
+        closedShelves.append([x, self.SLEIGH_LEN, y, self.SLEIGH_LEN])
+      i = i+1
+      lz = max(lz, pz-1)
+      packedPresents.append([present, x, y, self.z])
+      my = max(my, y+py-1)
+      #print "x = {0}, x' = {1}, px = {2}".format(x, x+px-1, px)
+      x = x+px
+
+    return [i, lz, packedPresents]
+
+# Returns the coordinates of the packedPresents
   def getCoords(self):
     #converts the presents in each row to their coords
     #return self.coords
     coords = []
-    for placedPresent in self.presentsUsed:
-      coords.append(self.getPresentCoords(placedPresent))
+    for packedPresent in self.packedPresents:
+      coords.append(self.getPresentCoords(packedPresent))
     return coords
 
   def getPresentCoords(self, placedPresent):
