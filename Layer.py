@@ -1,4 +1,5 @@
 class Layer:
+  saved = 0
   def __init__(self, z, SLEIGH_LEN):
     self.packedPresents = [] # of form [[id px py pz] x y z]
     self.z = z
@@ -48,6 +49,7 @@ class Layer:
     [new_i, lz, latestPackedPresents] = self.selfFirstFit(presents, i)
     if new_i - i > len(packedPresents):
       packedPresents = latestPackedPresents
+      #print "i ={0}, new_i = {1}, di = {2}, len(presents) = {3}".format(i, new_i, new_i-i, len(packedPresents))
     return [new_i, lz, packedPresents]
 
   def selfFirstFit(self, presents, i):
@@ -66,25 +68,30 @@ class Layer:
           used_closed_shelf = True
           packedPresents.append([present, cx, cy, self.z])
           shelf[0] = cx+px
+          break
       
       if used_closed_shelf:
         lz = max(lz, pz-1)
         i = i+1
-        continue
-
-      if x+px-1 > self.SLEIGH_LEN:
-        closedShelves.append([x, self.SLEIGH_LEN, y, my])
-        x = mx = 1
-        y = my+1
-      if y+py-1 > self.SLEIGH_LEN:
-        return [i, lz, packedPresents]
-        closedShelves.append([x, self.SLEIGH_LEN, y, self.SLEIGH_LEN])
-      i = i+1
-      lz = max(lz, pz-1)
-      packedPresents.append([present, x, y, self.z])
-      my = max(my, y+py-1)
-      #print "x = {0}, x' = {1}, px = {2}".format(x, x+px-1, px)
-      x = x+px
+      else:
+        if x+px-1 > self.SLEIGH_LEN:
+          closedShelves.append([x, self.SLEIGH_LEN, y, my])
+          x = mx = 1
+          y = my+1
+        if y+py-1 > self.SLEIGH_LEN:
+          return [i, lz, packedPresents]
+          #closedShelves.append([x, self.SLEIGH_LEN, y, self.SLEIGH_LEN])
+        i = i+1
+        lz = max(lz, pz-1)
+        for p in packedPresents:
+            if id == 50:
+              print "first insert of ", 50
+            if p[0][0] == id:
+              print "duplicate below!!, id = ", id
+        packedPresents.append([present, x, y, self.z])
+        my = max(my, y+py-1)
+        #print "x = {0}, x' = {1}, px = {2}".format(x, x+px-1, px)
+        x = x+px
 
     return [i, lz, packedPresents]
 
