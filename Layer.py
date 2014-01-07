@@ -64,9 +64,15 @@ class Layer:
       for shelf in closedShelves:
         cx, cmx, cy, cmy = shelf
         if cmx-cx-1 > px and cmy-cy-1 > py:
-          #print "dx: {0}-{1}, dy: {2}-{3}".format(cx, cmx, cy, cmy)
           used_closed_shelf = True
           packedPresents.append([present, cx, cy, self.z])
+          shelf[0] = cx+px
+          break
+        elif cmx-cx-1 > py and cmy-cy-1 > px:
+          used_closed_shelf = True
+          px, py = py, px
+          #print "got a new fit!"
+          packedPresents.append([[id, px, py, pz], cx, cy, self.z])
           shelf[0] = cx+px
           break
       
@@ -80,14 +86,9 @@ class Layer:
           y = my+1
         if y+py-1 > self.SLEIGH_LEN:
           return [i, lz, packedPresents]
-          #closedShelves.append([x, self.SLEIGH_LEN, y, self.SLEIGH_LEN])
+
         i = i+1
         lz = max(lz, pz-1)
-        for p in packedPresents:
-            if id == 50:
-              print "first insert of ", 50
-            if p[0][0] == id:
-              print "duplicate below!!, id = ", id
         packedPresents.append([present, x, y, self.z])
         my = max(my, y+py-1)
         #print "x = {0}, x' = {1}, px = {2}".format(x, x+px-1, px)
