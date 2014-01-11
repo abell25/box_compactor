@@ -46,11 +46,39 @@ def sortRowsAlgorithm(presents):
   z = mz = 1
   layers = []
   while i < len(presents):
+    
+    for j in range(0, len(presents)):
+      id, px, py, pz = presents[j]
+      pz, py, px = sorted([px, py, pz])
+      presents[j] = [id, px, py, pz]
+
+    layer = Layer.Layer(z, SLEIGH_LEN)
+    [mz1, i1] = layer.makeLayer(presents, i)
+    z1 = mz1+1
+    
+    p_presents = layer.packedPresents
+    p_presents = map(lambda x: x[0], p_presents)
+    #p_presents = sorted(p_presents, key=lambda x: x[2], reverse=True)
+    p_presents = sorted(p_presents, key=lambda x: x[1]*x[2]*x[3], reverse=True)
+    for j in range(0, len(p_presents)):
+      presents[i+j] = p_presents[j]
+ 
+    layer = Layer.Layer(z, SLEIGH_LEN)
+    [mz1, i1] = layer.makeLayer(presents, i)
+    z1 = mz1+1
+    
+    p_presents = layer.packedPresents
+    p_presents = map(lambda x: x[0], p_presents)
+    #p_presents = sorted(p_presents, key=lambda x: x[2], reverse=True)
+    p_presents = sorted(p_presents, key=lambda x: x[1]*x[2]*x[3], reverse=True)
+    for j in range(0, len(p_presents)):
+      presents[i+j] = p_presents[j]
+
     layer = Layer.Layer(z, SLEIGH_LEN)
     [mz, i] = layer.makeLayer(presents, i)
     z = mz+1
+
     layers.append(layer)
-    #print "there are now ", len(layers), " layer!, i=", i, ", packed=", len(layer.packedPresents)
   for layer in layers:
     packedPresents += layer.getCoords()
 

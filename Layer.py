@@ -1,7 +1,6 @@
 class Layer:
   def __init__(self, z, SLEIGH_LEN):
     self.packedPresents = [] # of form [[id px py pz] x y z]
-    self.packedPresentsBest = []
     self.z = z
     self.SLEIGH_LEN = SLEIGH_LEN  
 
@@ -59,6 +58,7 @@ class Layer:
       else:
         present = presents[i]
         id, px, py, pz = present
+        pz, py, px = sorted([px, py, pz])
 
         if x+px-1 > self.SLEIGH_LEN:
           closedShelves.append([x, self.SLEIGH_LEN, y, my])
@@ -69,7 +69,7 @@ class Layer:
 
         i = i+1
         lz = max(lz, pz-1)
-        packedPresents.append([present, x, y, self.z])
+        packedPresents.append([[id, px, py, pz], x, y, self.z])
         my = max(my, y+py-1)
         x = x+px
 
